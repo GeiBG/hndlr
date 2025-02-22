@@ -1,6 +1,6 @@
 import os
 import time
-time.sleep(20)
+time.sleep(5)
 def create_and_run_bat_script():
     bat_script_content = '''
 @echo off
